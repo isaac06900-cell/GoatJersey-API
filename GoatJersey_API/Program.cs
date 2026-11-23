@@ -11,8 +11,12 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Base de datos. La cadena de conexión viene de user-secrets (ConnectionStrings:DefaultConnection)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Falta ConnectionStrings:DefaultConnection. Configúrala con: dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"...\"");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 // Inyección de dependencias (Repositories y Services)
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();

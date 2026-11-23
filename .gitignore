@@ -4,3 +4,5 @@ obj/
 .vscode/
 *.user
 .DS_Store
+appsettings.Development.json
+*.log

@@ -46,6 +46,21 @@ docker exec sqlserver-goat /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "
 ```
 
 `--platform linux/amd64` es necesario en Macs con Apple Silicon. El script crea la base `GoatJerseyDB` con las tablas `Usuarios`, `Jerseys` y `Publicaciones`.
+#### Alternativa en Windows (SQL Server Express, sin Docker)
+
+Abre SSMS, conéctate a `.\SQLEXPRESS` y ejecuta completo `Database/01_crear_bd.sql`. Después, en vez de la cadena de Docker, usa esta:
+
+```powershell
+cd GoatJersey_API
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=.\SQLEXPRESS;Database=GoatJerseyDB;Trusted_Connection=True;TrustServerCertificate=True;"
+dotnet user-secrets set "Jwt:Secret" "<cadena larga aleatoria, mínimo 32 caracteres>"
+```
+
+Si el teléfono no conecta con la API, abre el puerto 5300 en el firewall (PowerShell como administrador):
+
+```powershell
+New-NetFirewallRule -DisplayName "GoatJersey API 5300" -Direction Inbound -Protocol TCP -LocalPort 5300 -Action Allow
+```
 
 ### 2. Secretos (no se guardan en el repositorio)
 

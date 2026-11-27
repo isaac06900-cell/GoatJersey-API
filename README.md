@@ -1,8 +1,8 @@
 # Goat Jersey · API
 
-API REST del **marketplace y colección de jerseys de fútbol**. Maneja el registro y login de usuarios (JWT) y la colección de jerseys de cada coleccionista.
+API REST del **marketplace y colección de jerseys de fútbol**. Maneja el registro y login de usuarios (JWT), la colección de jerseys de cada coleccionista y la publicación de jerseys para venta o intercambio.
 
-Proyecto final · **Equipo Goat** · Grupo J-301 · Universidad Autónoma de Occidente (UAdeO).
+Proyecto final · **Equipo Goat** · Grupo J-301 · Programación de Dispositivos Móviles · Universidad Autónoma de Occidente (UAdeO), Unidad Regional Culiacán.
 
 Este repositorio es el **backend**. La app móvil está en [GoatJersey-App](https://github.com/isaac06900-cell/GoatJersey-App).
 
@@ -10,9 +10,9 @@ Este repositorio es el **backend**. La app móvil está en [GoatJersey-App](http
 
 | Nombre | GitHub |
 |---|---|
-| Isaac Jasiel Herrera Avila | [@isaac06900-cell](https://github.com/isaac06900-cell) |
-| Andrew | [@Andrewclz](https://github.com/Andrewclz) |
-| Alan | _(por agregar)_ |
+| Isaac Jasiel Herrera Ávila | [@isaac06900-cell](https://github.com/isaac06900-cell) |
+| Andrew Neftalí Chaidez López | [@Andrewclz](https://github.com/Andrewclz) |
+| Alan Jesús Aguilar Verdugo | [@alanjesusaguilarverdugo-lang](https://github.com/alanjesusaguilarverdugo-lang) |
 
 ## Tecnologías
 
@@ -20,16 +20,32 @@ ASP.NET Core (.NET 10) · Entity Framework Core · SQL Server 2022 · JWT (HS256
 
 ## Endpoints
 
-| Método | Ruta | Requiere token | Descripción |
-|---|---|---|---|
-| POST | `/api/auth/registro` | No | Crea una cuenta (`nombre`, `correo`, `password`) |
-| POST | `/api/auth/login` | No | Devuelve el token JWT (`correo`, `password`) |
-| GET | `/api/jerseys` | Sí | Lista mi colección |
-| POST | `/api/jerseys` | Sí | Agrega un jersey |
-| PUT | `/api/jerseys/{id}` | Sí | Edita un jersey |
-| DELETE | `/api/jerseys/{id}` | Sí | Elimina un jersey |
+Todos los endpoints, salvo registro y login, exigen el encabezado `Authorization: Bearer <token>` y responden 401 sin él.
 
-Los errores regresan como `{ "error": "mensaje" }`. Roles: `Coleccionista` y `Admin`. El módulo de publicaciones está en desarrollo.
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/api/auth/registro` | Crea una cuenta (`nombre`, `correo`, `password`) |
+| POST | `/api/auth/login` | Devuelve el token JWT (`correo`, `password`) |
+| GET | `/api/jerseys` | Lista mi colección |
+| POST | `/api/jerseys` | Agrega un jersey a mi colección |
+| PUT | `/api/jerseys/{id}` | Edita un jersey mío |
+| DELETE | `/api/jerseys/{id}` | Elimina un jersey mío (sin publicación activa) |
+| GET | `/api/publicaciones` | Explora las publicaciones activas de otros usuarios. Filtros opcionales por query: `equipo`, `temporada`, `talla`, `tipo`, `version` |
+| GET | `/api/publicaciones/{id}` | Detalle de una publicación, con el jersey y el vendedor |
+| POST | `/api/publicaciones` | Publica un jersey mío (`idJersey`, `tipo`, `precio`, `descripcion`) |
+| PATCH | `/api/publicaciones/{id}/retirar` | Retira una publicación (su dueño o un Admin) |
+
+Los errores regresan como `{ "error": "mensaje" }`, y los de validación del modelo como el detalle de cada campo. Códigos usados: 200, 201, 204, 400, 401, 403 y 404.
+
+## Reglas de negocio
+
+- Los usuarios nuevos siempre se registran con el rol `Coleccionista`; el rol `Admin` se asigna directamente en la base de datos.
+- Un jersey solo puede tener **una publicación activa** a la vez.
+- No se puede eliminar un jersey con una publicación activa: primero hay que retirarla.
+- Solo el dueño puede editar, eliminar o publicar sus jerseys (si no, 403).
+- El `tipo` de una publicación es `Venta`, `Intercambio` o `Ambos`; el `precio` es obligatorio y mayor que 0 cuando hay venta.
+- Al publicar, el jersey pasa a `Publicado`; al retirar la publicación, regresa a `EnColeccion`.
+- Una publicación la puede retirar su dueño o un usuario con rol `Admin` (moderación).
 
 ## Cómo correrlo
 
@@ -46,6 +62,7 @@ docker exec sqlserver-goat /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "
 ```
 
 `--platform linux/amd64` es necesario en Macs con Apple Silicon. El script crea la base `GoatJerseyDB` con las tablas `Usuarios`, `Jerseys` y `Publicaciones`.
+
 #### Alternativa en Windows (SQL Server Express, sin Docker)
 
 Abre SSMS, conéctate a `.\SQLEXPRESS` y ejecuta completo `Database/01_crear_bd.sql`. Después, en vez de la cadena de Docker, usa esta:

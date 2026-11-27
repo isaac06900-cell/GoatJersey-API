@@ -26,6 +26,7 @@ public class JerseyRepository : IJerseyRepository
     public Task<List<Jersey>> ObtenerPorUsuarioAsync(int idUsuario)
         => _context.Jerseys
             .AsNoTracking()
+            .Include(j => j.Publicaciones)
             .Where(j => j.IdUsuario == idUsuario)
             .OrderByDescending(j => j.FechaAlta)
             .ToListAsync();

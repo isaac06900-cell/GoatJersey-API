@@ -14,15 +14,16 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "Falta ConnectionStrings:DefaultConnection. Configúrala con: dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"...\"");
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Inyección de dependencias (Repositories y Services)
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IJerseyRepository, JerseyRepository>();
+builder.Services.AddScoped<IPublicacionRepository, PublicacionRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJerseyService, JerseyService>();
+builder.Services.AddScoped<IPublicacionService, PublicacionService>();
 
 // JWT. El secreto viene de user-secrets (Jwt:Secret)
 var jwtSettings = builder.Configuration.GetSection("Jwt");

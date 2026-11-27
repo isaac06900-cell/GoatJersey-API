@@ -96,6 +96,10 @@ public class JerseyService : IJerseyService
         ValorEstimado = j.ValorEstimado,
         FotoUrl = j.FotoUrl,
         Disponibilidad = j.Disponibilidad,
-        FechaAlta = j.FechaAlta
+        FechaAlta = j.FechaAlta,
+        IdPublicacionActiva = j.Publicaciones
+            .Where(p => p.Estatus == "Activa")
+            .Select(p => (int?)p.IdPublicacion)
+            .FirstOrDefault()
     };
 }

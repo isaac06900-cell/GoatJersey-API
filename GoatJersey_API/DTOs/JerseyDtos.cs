@@ -53,4 +53,5 @@ public class JerseyResponseDto
     public string? FotoUrl { get; set; }
     public string Disponibilidad { get; set; } = string.Empty;
     public DateTime FechaAlta { get; set; }
+    public int? IdPublicacionActiva { get; set; }
 }
